@@ -1,4 +1,4 @@
-let totalAvisosConhecidos = null; // Guarda quantos avisos já estavam na tela
+let totalAvisosConhecidos = null;
 
 function toggleChaveAcesso() {
     const cargo = document.getElementById('cad-cargo').value;
@@ -28,7 +28,7 @@ if(document.getElementById('cadastro-form')) {
             body: JSON.stringify(dados)
         });
         const resultado = await res.json();
-        if(resultado.sucesso) { alert('Conta criada com sucesso!'); window.location.href = 'index.html'; } 
+        if(resultado.sucesso) { alert('Conta criada com sucesso!'); window.location.href = '/login'; } 
         else { alert(resultado.erro); }
     });
 }
@@ -44,7 +44,7 @@ if(document.getElementById('login-form')) {
             body: JSON.stringify({ email, senha })
         });
         const resultado = await res.json();
-        if(resultado.sucesso) { window.location.href = 'mural.html'; } 
+        if(resultado.sucesso) { window.location.href = '/mural'; } 
         else { alert(resultado.erro); }
     });
 }
@@ -53,7 +53,7 @@ async function protegerPaginaMural() {
     try {
         const res = await fetch('/api/usuario-atual', { cache: 'no-store' });
         const usuario = await res.json();
-        if (!usuario || !usuario.logado) { window.location.href = 'index.html'; return; }
+        if (!usuario || !usuario.logado) { window.location.href = '/login'; return; }
 
         const userDisplay = document.getElementById('user-display');
         if (userDisplay) { userDisplay.innerText = `${usuario.nome} (${usuario.cargo})`; }
@@ -64,23 +64,17 @@ async function protegerPaginaMural() {
             else { btnPublicar.classList.add('hidden'); }
         }
         
-        // Primeira carga dos avisos
         await carregarAvisos(usuario.cargo);
-
-        // CONFIGURAÇÃO DA NOTIFICAÇÃO: Checa novos avisos a cada 5 segundos automaticamente
         setInterval(() => checarNovosAvisosSilenciosamente(usuario.cargo), 5000);
 
-    } catch (erro) { window.location.href = 'index.html'; }
+    } catch (erro) { window.location.href = '/login'; }
 }
 
 async function carregarAvisos(cargoUsuario) {
     const res = await fetch('/api/avisos', { cache: 'no-store' });
     const avisos = await res.json();
     
-    // Define a contagem inicial para sabermos quando um novo chegar
-    if (totalAvisosConhecidos === null) {
-        totalAvisosConhecidos = avisos.length;
-    }
+    if (totalAvisosConhecidos === null) { totalAvisosConhecidos = avisos.length; }
 
     const container = document.getElementById('lista-avisos');
     if(!container) return;
@@ -90,11 +84,8 @@ async function carregarAvisos(cargoUsuario) {
         const item = document.createElement('div');
         item.className = 'card';
         
-        if (aviso.visibilidade === 'interno') {
-            item.style.borderLeft = '6px solid var(--warning)';
-        } else {
-            item.style.borderLeft = '6px solid var(--primary)';
-        }
+        if (aviso.visibilidade === 'interno') { item.style.borderLeft = '6px solid var(--warning)'; } 
+        else { item.style.borderLeft = '6px solid var(--primary)'; }
         
         let botaoApagar = '';
         if(cargoUsuario !== 'aluno' && cargoUsuario !== 'responsavel') {
@@ -117,44 +108,32 @@ async function carregarAvisos(cargoUsuario) {
     });
 }
 
-// Monitora o banco em segundo plano para disparar a notificação real
 async function checarNovosAvisosSilenciosamente(cargoUsuario) {
     try {
         const res = await fetch('/api/avisos', { cache: 'no-store' });
         const avisos = await res.json();
 
-        // Se a quantidade no banco for maior do que o front-end conhece, tem aviso novo!
         if (totalAvisosConhecidos !== null && avisos.length > totalAvisosConhecidos) {
-            const maisRecente = avisos[0]; // Pega o aviso do topo da lista
-            
-            totalAvisosConhecidos = avisos.length; // Atualiza o contador interno
-            carregarAvisos(cargoUsuario);          // Atualiza a tela na hora
+            const maisRecente = avisos[0];
+            totalAvisosConhecidos = avisos.length;
+            carregarAvisos(cargoUsuario);
 
-            // Dispara a Notificação de Sistema do Computador/Celular
             if (Notification.permission === "granted") {
                 new Notification("📢 Novo Aviso Escolar!", {
                     body: `Título: ${maisRecente.titulo}\nPostado por: ${maisRecente.autor}`,
                     icon: maisRecente.imagem || '/favicon.ico'
                 });
             }
-        } else {
-            // Caso avisos tenham sido deletados, ajusta o contador sem notificar
-            totalAvisosConhecidos = avisos.length;
-        }
-    } catch (e) { console.error("Erro na checagem de notificações:", e); }
+        } else { totalAvisosConhecidos = avisos.length; }
+    } catch (e) { console.error(e); }
 }
 
-// GERENCIAMENTO DE PERMISSÕES DA API DE NOTIFICAÇÃO
 function verificarPermissaoNotificacao() {
     const barra = document.getElementById('barra-notificacao');
     if (!barra) return;
-
     if ("Notification" in window) {
-        if (Notification.permission === "default") {
-            barra.classList.remove('hidden'); // Mostra a barra pedindo ativação
-        } else {
-            barra.classList.add('hidden');    // Já aceitou ou bloqueou, esconde a barra
-        }
+        if (Notification.permission === "default") { barra.classList.remove('hidden'); } 
+        else { barra.classList.add('hidden'); }
     }
 }
 
@@ -191,12 +170,12 @@ if(document.getElementById('publicar-form')) {
         }
 
         const res = await fetch('/api/avisos', { method: 'POST', body: formData });
-        if(res.ok) { window.location.href = 'mural.html'; } 
+        if(res.ok) { window.location.href = '/mural'; } 
         else { const erroData = await res.json(); alert(erroData.erro); }
     });
 }
 
 async function logout() {
     await fetch('/api/logout', { method: 'POST' });
-    window.location.href = 'index.html';
+    window.location.href = '/login';
 }

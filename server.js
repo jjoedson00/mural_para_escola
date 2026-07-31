@@ -11,25 +11,48 @@ const db = new sqlite3.Database('./avisos.db');
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// IMPORTANTE PARA O RENDER: Informa ao Express que ele está atrás de um proxy reverso
 app.set('trust proxy', 1);
 
-// Configuração estável de sessões para rodar em produção (Nuvem)
 app.use(session({
     name: 'mural_escolar_session_id',
     secret: 'chave-secreta-mural-escola-tcc-2026-segura-fixa',
     resave: true,
     saveUninitialized: false,
-    proxy: true, // Garante o funcionamento seguro passando pelo proxy do Render
+    proxy: true, 
     cookie: { 
-        secure: false, // Mantido false para compatibilidade simples, mude para true se exigir HTTPS estrito
-        maxAge: 1000 * 60 * 60 * 24, // Mantém o usuário conectado por 24 horas
+        secure: false, 
+        maxAge: 1000 * 60 * 60 * 24, 
         sameSite: 'lax'
     }
 }));
 
+// Servir arquivos estáticos (CSS, imagens e JS de suporte)
 app.use(express.static('public'));
 app.use('/uploads', express.static('uploads'));
+
+// -------------------------------------------------------------
+// SISTEMA DE ROTAS AMIGÁVEIS (SEM EXTENSÃO .HTML)
+// -------------------------------------------------------------
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.get('/login', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.get('/cadastro', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'cadastro.html'));
+});
+
+app.get('/mural', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'mural.html'));
+});
+
+app.get('/publicar', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'publicar.html'));
+});
+// -------------------------------------------------------------
 
 const storage = multer.diskStorage({
     destination: './uploads/',
@@ -99,7 +122,7 @@ app.post('/api/logout', (req, res) => {
     req.session.destroy((err) => {
         if (err) return res.status(500).json({ erro: "Não foi possível deslogar" });
         res.clearCookie('mural_escolar_session_id');
-        res.json({ Urban: true, sucesso: true });
+        res.json({ sucesso: true });
     });
 });
 
@@ -137,6 +160,5 @@ app.delete('/api/avisos/:id', (req, res) => {
     db.run(`DELETE FROM avisos WHERE id = ?`, [req.params.id], (err) => { res.json({ sucesso: true }); });
 });
 
-// MODIFICAÇÃO OBRIGATÓRIA: O Render escolhe a porta dinamicamente (process.env.PORT)
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Servidor rodando com sucesso na porta ${PORT}`));
