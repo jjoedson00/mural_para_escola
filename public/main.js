@@ -1,6 +1,7 @@
 let totalAvisosConhecidos = null;
-let bancoAvisosLocal = []; // Guarda os avisos para busca local rápida sem travar o servidor
+let bancoAvisosLocal = []; // Guarda os avisos para busca local rápida
 
+// Ocultar ou exibir campo de chave mestra no cadastro institucional
 function toggleChaveAcesso() {
     const cargo = document.getElementById('cad-cargo').value;
     const divChave = document.getElementById('div-chave');
@@ -14,7 +15,7 @@ function toggleChaveAcesso() {
 }
 
 // Monitor de digitação da Barra de Pesquisa
-if(document.getElementById('campo-pesquisa')) {
+if (document.getElementById('campo-pesquisa')) {
     document.getElementById('campo-pesquisa').addEventListener('input', (e) => {
         const termo = e.target.value.toLowerCase();
         filtrarEMostrarAvisos(termo);
@@ -26,14 +27,12 @@ function gerarQrCodeAutomatico() {
     const containerQr = document.getElementById('canvas-qrcode');
     if (!containerQr) return;
     
-    // Pega o endereço exato do seu site do Render direto da barra de navegação
     const urlAtual = window.location.origin; 
-    
-    // Utiliza uma API pública e gratuita de QR Code para gerar o gráfico sob demanda
     containerQr.innerHTML = `<img src="https://qrserver.com{encodeURIComponent(urlAtual)}&color=0f172a" alt="QR Code do Site" style="display:block;">`;
 }
 
-if(document.getElementById('cadastro-form')) {
+// Envio do formulário de cadastro
+if (document.getElementById('cadastro-form')) {
     document.getElementById('cadastro-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const dados = {
@@ -49,12 +48,17 @@ if(document.getElementById('cadastro-form')) {
             body: JSON.stringify(dados)
         });
         const resultado = await res.json();
-        if(resultado.sucesso) { alert('Conta criada com sucesso!'); window.location.href = '/login'; } 
-        else { alert(resultado.erro); }
+        if (resultado.sucesso) { 
+            alert('Conta criada com sucesso!'); 
+            window.location.href = '/login'; 
+        } else { 
+            alert(resultado.erro); 
+        }
     });
 }
 
-if(document.getElementById('login-form')) {
+// Envio do formulário de login
+if (document.getElementById('login-form')) {
     document.getElementById('login-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const email = document.getElementById('login-email').value;
@@ -65,64 +69,76 @@ if(document.getElementById('login-form')) {
             body: JSON.stringify({ email, senha })
         });
         const resultado = await res.json();
-        if(resultado.sucesso) { window.location.href = '/mural'; } 
-        else { alert(resultado.erro); }
+        if (resultado.sucesso) { 
+            window.location.href = '/mural'; 
+        } else { 
+            alert(resultado.erro); 
+        }
     });
 }
 
+// Proteção da página do mural
 async function protegerPaginaMural() {
     try {
         const res = await fetch('/api/usuario-atual', { cache: 'no-store' });
         const usuario = await res.json();
-        if (!usuario || !usuario.logado) { window.location.href = '/login'; return; }
+        if (!usuario || !usuario.logado) { 
+            window.location.href = '/login'; 
+            return; 
+        }
 
         const userDisplay = document.getElementById('user-display');
-        if (userDisplay) { userDisplay.innerText = `${usuario.nome} (${usuario.cargo})`; }
+        if (userDisplay) { 
+            userDisplay.innerText = `${usuario.nome} (${usuario.cargo})`; 
+        }
         
         const btnPublicar = document.getElementById('btn-ir-publicar');
         if (btnPublicar) {
-            if (usuario.cargo !== 'aluno' && usuario.cargo !== 'responsavel') { btnPublicar.classList.remove('hidden'); } 
-            else { btnPublicar.classList.add('hidden'); }
+            if (usuario.cargo !== 'aluno' && usuario.cargo !== 'responsavel') { 
+                btnPublicar.classList.remove('hidden'); 
+            } else { 
+                btnPublicar.classList.add('hidden'); 
+            }
         }
         
-        // Baixa a lista inicial
         await baixarAvisosDoServidor(usuario.cargo);
-        
-        // Mantém a sincronia em tempo real a cada 5 segundos
         setInterval(() => checarNovosAvisosSilenciosamente(usuario.cargo), 5000);
 
-    } catch (erro) { window.location.href = '/login'; }
+    } catch (erro) { 
+        window.location.href = '/login'; 
+    }
 }
 
+// Baixar avisos iniciais
 async function baixarAvisosDoServidor(cargoUsuario) {
     const res = await fetch('/api/avisos', { cache: 'no-store' });
     bancoAvisosLocal = await res.json();
     
-    if (totalAvisosConhecidos === null) { totalAvisosConhecidos = bancoAvisosLocal.length; }
+    if (totalAvisosConhecidos === null) { 
+        totalAvisosConhecidos = bancoAvisosLocal.length; 
+    }
     
-    // Exibe os avisos na tela
     filtrarEMostrarAvisos("", cargoUsuario);
 }
 
-// Desenha os blocos aplicando o filtro da barra de buscas
+// Desenha e filtra os blocos na tela
 function filtrarEMostrarAvisos(termoPesquisa = "", cargoUsuario = null) {
     const container = document.getElementById('lista-avisos');
-    if(!container) return;
+    if (!container) return;
     container.innerHTML = '';
     
-    if(!cargoUsuario) {
-        // Se a função foi chamada pela digitação, recupera o cargo que está escrito no cabeçalho
-        const textoCabecalho = document.getElementById('user-display').innerText;
+    if (!cargoUsuario) {
+        const userDisplay = document.getElementById('user-display');
+        const textoCabecalho = userDisplay ? userDisplay.innerText : "";
         cargoUsuario = textoCabecalho.includes('aluno') ? 'aluno' : (textoCabecalho.includes('responsavel') ? 'responsavel' : 'professor');
     }
 
-    // Filtra no banco local os avisos que batem com o título ou conteúdo digitado
     const avisosFiltrados = bancoAvisosLocal.filter(aviso => {
         return aviso.titulo.toLowerCase().includes(termoPesquisa) || 
                aviso.conteudo.toLowerCase().includes(termoPesquisa);
     });
 
-    if(avisosFiltrados.length === 0) {
+    if (avisosFiltrados.length === 0) {
         container.innerHTML = `<p style="text-align:center; color:#64748b; margin-top:30px; font-weight:600;">Nenhum aviso encontrado para esta busca.</p>`;
         return;
     }
@@ -131,11 +147,14 @@ function filtrarEMostrarAvisos(termoPesquisa = "", cargoUsuario = null) {
         const item = document.createElement('div');
         item.className = 'card';
         
-        if (aviso.visibilidade === 'interno') { item.style.borderLeft = '6px solid var(--warning)'; } 
-        else { item.style.borderLeft = '6px solid var(--primary)'; }
+        if (aviso.visibilidade === 'interno') { 
+            item.style.borderLeft = '6px solid var(--warning)'; 
+        } else { 
+            item.style.borderLeft = '6px solid var(--primary)'; 
+        }
         
         let botaoApagar = '';
-        if(cargoUsuario !== 'aluno' && cargoUsuario !== 'responsavel') {
+        if (cargoUsuario !== 'aluno' && cargoUsuario !== 'responsavel') {
             botaoApagar = `<button class="btn-danger" style="font-size:13px; width: fit-content; margin-top: 15px; padding: 10px 20px;" onclick="deletarAviso(${aviso.id})">Apagar Aviso</button>`;
         }
 
@@ -155,39 +174,49 @@ function filtrarEMostrarAvisos(termoPesquisa = "", cargoUsuario = null) {
     });
 }
 
+// Checagem em segundo plano
 async function checarNovosAvisosSilenciosamente(cargoUsuario) {
     try {
         const res = await fetch('/api/avisos', { cache: 'no-store' });
         const avisos = await res.json();
 
         if (totalAvisosConhecidos !== null && avisos.length > totalAvisosConhecidos) {
-            const maisRecente = avisos[0];
+            const maisRecente = avisos[0]; // Pega o mais recente
             totalAvisosConhecidos = avisos.length;
             
-            // Atualiza os dados locais e a tela mantendo a digitação atual
             bancoAvisosLocal = avisos;
-            const termoAtual = document.getElementById('campo-pesquisa').value.toLowerCase();
+            const campoPesquisa = document.getElementById('campo-pesquisa');
+            const termoAtual = campoPesquisa ? campoPesquisa.value.toLowerCase() : "";
             filtrarEMostrarAvisos(termoAtual, cargoUsuario);
 
-            if (Notification.permission === "granted") {
+            if (Notification.permission === "granted" && maisRecente) {
                 new Notification("📢 Novo Aviso Escolar!", {
                     body: `Título: ${maisRecente.titulo}\nPostado por: ${maisRecente.autor}`,
                     icon: maisRecente.imagem || '/favicon.ico'
                 });
             }
-        } else { totalAvisosConhecidos = avisos.length; }
-    } catch (e) { console.error(e); }
+        } else { 
+            totalAvisosConhecidos = avisos.length; 
+        }
+    } catch (e) { 
+        console.error(e); 
+    }
 }
 
+// Verificar permissão de notificação
 function verificarPermissaoNotificacao() {
     const barra = document.getElementById('barra-notificacao');
     if (!barra) return;
     if ("Notification" in window) {
-        if (Notification.permission === "default") { barra.classList.remove('hidden'); } 
-        else { barra.classList.add('hidden'); }
+        if (Notification.permission === "default") { 
+            barra.classList.remove('hidden'); 
+        } else { 
+            barra.classList.add('hidden'); 
+        }
     }
 }
 
+// Solicitar permissão de notificação
 function solicitarPermissaoNotificacao() {
     if ("Notification" in window) {
         Notification.requestPermission().then(permission => {
@@ -201,23 +230,19 @@ function solicitarPermissaoNotificacao() {
     }
 }
 
+// Deletar aviso
 async function deletarAviso(id) {
-    if(!confirm("Tem certeza que quer apagar esse aviso?")) return;
+    if (!confirm("Tem certeza que quer apagar esse aviso?")) return;
     const res = await fetch(`/api/avisos/${id}`, { method: 'DELETE' });
-    if(res.ok) { protegerPaginaMural(); }
+    if (res.ok) { 
+        protegerPaginaMural(); 
+    }
 }
 
-if(document.getElementById('publicar-form')) {
+// Formulário de publicação
+if (document.getElementById('publicar-form')) {
     document.getElementById('publicar-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const formData = new FormData();
         formData.append('titulo', document.getElementById('pub-titulo').value);
         formData.append('conteudo', document.getElementById('pub-conteudo').value);
-        formData.append('visibilidade', document.getElementById('pub-visibilidade').value);
-        
-        const fotoInput = document.getElementById('pub-imagem');
-        if(fotoInput.files && fotoInput.files[0]) {
-            formData.append('imagem', fotoInput.files[0]);
-        }
-
-     const res = await fetch('/api/avisos', { method: 'POST', body: formData });
