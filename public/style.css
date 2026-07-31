@@ -27,18 +27,20 @@ body {
 
 .container {
     width: 100%;
-    max-width: 1100px; /* Layout expandido na horizontal */
-    padding: 20px;
+    max-width: 1100px; /* Layout expandido na horizontal para desktops */
+    padding: 15px;     /* Margem de segurança nas bordas */
     box-sizing: border-box;
 }
 
-/* Painel Principal com cor rica */
+/* Painel Principal Inteligente e Fluido */
 .card {
     background: var(--card-main);
-    padding: 40px;
-    border-radius: 24px;
+    padding: 35px 25px; /* Reduzido levemente para otimizar espaço */
+    border-radius: 20px;
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
     border: 1px solid var(--border-subtle);
+    width: 100%;
+    box-sizing: border-box;
 }
 
 h2 {
@@ -65,7 +67,7 @@ label {
     font-weight: 700;
 }
 
-/* Caixas de Entrada de Texto com visual Dark */
+/* Caixas de Entrada de Texto Adaptáveis */
 input, select, textarea {
     width: 100%;
     padding: 14px 16px;
@@ -90,6 +92,33 @@ input:focus, select:focus, textarea:focus {
     box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.3);
 }
 
+/* Bloco Exclusivo do QR Code (Proteção para não vazar a tela) */
+#bloco-qrcode {
+    text-align: center; 
+    margin-top: 25px; 
+    padding-top: 20px; 
+    border-top: 1px solid rgba(255,255,255,0.1);
+    width: 100%;
+}
+
+#canvas-qrcode {
+    display: inline-block; 
+    padding: 12px; 
+    background: white; 
+    border-radius: 12px; 
+    box-shadow: 0 10px 15px rgba(0,0,0,0.5);
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Força a imagem do QR Code a caber em qualquer largura de tela */
+#canvas-qrcode img {
+    max-width: 100%;
+    height: auto !important;
+    max-height: 140px;
+    margin: 0 auto;
+}
+
 /* Estrutura Horizontal dos Cards de Avisos no Mural */
 #lista-avisos .card {
     background: var(--card-inner);
@@ -111,7 +140,7 @@ input:focus, select:focus, textarea:focus {
 }
 
 #lista-avisos p {
-    color: #cbd5e1 !important; /* Cinza claro suave para leitura de parágrafos */
+    color: #cbd5e1 !important;
 }
 
 .aviso-conteudo-bloco {
@@ -132,7 +161,7 @@ input:focus, select:focus, textarea:focus {
 }
 
 .aviso-img:hover {
-    transform: scale(1.03); /* Leve aproximação ao passar o mouse */
+    transform: scale(1.03);
 }
 
 /* Customização de Links */
@@ -210,10 +239,14 @@ button.btn-danger:hover {
     display: none !important;
 }
 
-/* Ajuste Responsivo para Celulares */
+/* -------------------------------------------------------------
+   MEDIA QUERIES - RESPONSIVIDADE PARA TABLETS E CELULARES
+   ------------------------------------------------------------- */
+
+/* Ajuste para Tablets e Notebooks Pequenos */
 @media (max-width: 768px) {
     #lista-avisos .card {
-        flex-direction: column; 
+        flex-direction: column; /* Avisos ficam em pé no mobile */
         align-items: flex-start;
         padding: 20px;
     }
@@ -221,5 +254,35 @@ button.btn-danger:hover {
         max-width: 100%;
         height: auto;
         margin-top: 15px;
+    }
+}
+
+/* Ajuste Fino para Celulares Estreitos (Evita vazamentos) */
+@media (max-width: 480px) {
+    body {
+        padding: 10px 0;
+    }
+    
+    .container {
+        padding: 10px;
+    }
+    
+    .card {
+        padding: 25px 15px; /* Entrega o máximo de aproveitamento de tela interna */
+        border-radius: 16px;
+    }
+
+    h2 {
+        font-size: 22px; /* Reduz tamanho do título para não quebrar a caixa */
+        margin-bottom: 20px;
+    }
+
+    input, select, button {
+        padding: 12px 14px;
+        font-size: 14px;
+    }
+    
+    #canvas-qrcode img {
+        max-height: 120px; /* Reduz levemente o QR Code em celulares pequenos */
     }
 }

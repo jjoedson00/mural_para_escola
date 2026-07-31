@@ -30,14 +30,27 @@ if (campoPesquisa) {
     });
 }
 
-// 3. GERADOR AUTOMÁTICO DE QR CODE BASEADO NA URL DO NAVEGADOR
+// 3. GERADOR AUTOMÁTICO DE QR CODE OFFLINE LOCAL
 function gerarQrCodeAutomatico() {
     const containerQr = document.getElementById('canvas-qrcode');
     if (!containerQr) return;
     
+    // Pega o endereço exato do seu link do Render
     const urlAtual = window.location.origin; 
-    containerQr.innerHTML = `<img src="https://qrserver.com{encodeURIComponent(urlAtual)}&color=0f172a" alt="QR Code do Site" style="display:block;">`;
+    
+    // Limpa qualquer falha de carregamento anterior
+    containerQr.innerHTML = "";
+    
+    // Executa o desenho nativo do QR Code na tela de forma responsiva
+    new QRCode(containerQr, {
+        text: urlAtual,
+        width: 130,
+        height: 130,
+        colorDark : "#0f172a", // Módulos escuros
+        colorLight : "#ffffff" // Fundo branco
+    });
 }
+
 
 // 4. ENVIO DO FORMULÁRIO DE CADASTRO
 const cadastroForm = document.getElementById('cadastro-form');
