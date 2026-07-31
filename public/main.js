@@ -188,7 +188,7 @@ async function checarNovosAvisosSilenciosamente(cargoUsuario) {
         const avisos = await res.json();
 
         if (totalAvisosConhecidos !== null && avisos.length > totalAvisosConhecidos) {
-            const maisRecente = avisos[0]; // Pega o aviso mais recente do topo da lista
+            const maisRecente = avisos[0]; 
             totalAvisosConhecidos = avisos.length;
             
             bancoAvisosLocal = avisos;
@@ -257,3 +257,6 @@ if (publicarForm) {
         
         const fotoInput = document.getElementById('pub-imagem');
         if (fotoInput && fotoInput.files && fotoInput.files[0]) {
+            formData.append('imagem', fotoInput.files[0]);
+        }
+
