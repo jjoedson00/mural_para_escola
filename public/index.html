@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
+    <div class="container" style="max-width: 500px;">
         <div id="auth-section" class="card">
             <h2>🔑 Login do Sistema</h2>
             <form id="login-form">
@@ -15,8 +15,18 @@
                 <button type="submit">Entrar</button>
                 <p style="text-align: center;"><a href="/cadastro">Não tem conta? Cadastre-se aqui</a></p>
             </form>
+            
+            <!-- ESPAÇO DO QR CODE PARA A BANCA -->
+            <div id="bloco-qrcode" style="text-align: center; margin-top: 30px; padding-top: 25px; border-top: 1px solid rgba(255,255,255,0.1);">
+                <p style="font-size: 13px; color: #94a3b8; margin-bottom: 15px; font-weight: 600;">📱 ESCANEIE PARA TESTAR NO CELULAR</p>
+                <div id="canvas-qrcode" style="display: inline-block; padding: 12px; background: white; border-radius: 12px; box-shadow: 0 10px 15px rgba(0,0,0,0.5);"></div>
+            </div>
         </div>
     </div>
     <script src="main.js"></script>
+    <script>
+        // Executa a geração do QR Code automaticamente ao abrir a tela inicial
+        window.addEventListener('DOMContentLoaded', gerarQrCodeAutomatico);
+    </script>
 </body>
 </html>

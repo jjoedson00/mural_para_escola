@@ -21,7 +21,13 @@
                     <button onclick="logout()" class="btn-danger" style="margin: 0;">Sair</button>
                 </div>
             </div>
-            <p style="font-size: 16px; color: #94a3b8; margin-bottom: 30px;">Olá, <b id="user-display" style="color: var(--primary);">Carregando usuário...</b>!</p>
+            <p style="font-size: 16px; color: #94a3b8; margin-bottom: 20px;">Olá, <b id="user-display" style="color: var(--primary);">Carregando usuário...</b>!</p>
+            
+            <!-- NOVA BARRA DE PESQUISA -->
+            <div style="position: relative; margin-bottom: 25px;">
+                <input type="text" id="campo-pesquisa" placeholder="🔍 Digite uma palavra-chave para buscar avisos..." style="margin-bottom: 0; padding-left: 45px;">
+                <span style="position: absolute; left: 16px; top: 14px; color: #64748b; font-size: 18px;"></span>
+            </div>
             
             <div id="lista-avisos"></div>
         </div>
