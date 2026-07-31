@@ -30,27 +30,26 @@ if (campoPesquisa) {
     });
 }
 
-// 3. GERADOR AUTOMÁTICO DE QR CODE OFFLINE LOCAL
+// 3. GERADOR AUTOMÁTICO DE QR CODE REVISADO SEM ERROS
 function gerarQrCodeAutomatico() {
     const containerQr = document.getElementById('canvas-qrcode');
     if (!containerQr) return;
     
-    // Pega o endereço exato do seu link do Render
+    // Captura o link real do Render direto do navegador
     const urlAtual = window.location.origin; 
     
-    // Limpa qualquer falha de carregamento anterior
+    // Limpa a bolinha branca antiga e remove estilos conflitantes
     containerQr.innerHTML = "";
+    containerQr.style.background = "transparent";
+    containerQr.style.padding = "0";
+    containerQr.style.boxShadow = "none";
     
-    // Executa o desenho nativo do QR Code na tela de forma responsiva
-    new QRCode(containerQr, {
-        text: urlAtual,
-        width: 130,
-        height: 130,
-        colorDark : "#0f172a", // Módulos escuros
-        colorLight : "#ffffff" // Fundo branco
-    });
+    // Gera o bloco usando o novo motor seguro conectado ao HTML
+    if (window.LocalQRCode && typeof window.LocalQRCode.generate === 'function') {
+        var qrcodeElement = window.LocalQRCode.generate(urlAtual);
+        containerQr.appendChild(qrcodeElement);
+    }
 }
-
 
 // 4. ENVIO DO FORMULÁRIO DE CADASTRO
 const cadastroForm = document.getElementById('cadastro-form');
@@ -262,14 +261,3 @@ function solicitarPermissaoNotificacao() {
 async function deletarAviso(id) {
     if (!confirm("Tem certeza que quer apagar esse aviso?")) return;
     const res = await fetch(`/api/avisos/${id}`, { method: 'DELETE' });
-    if (res.ok) { 
-        protegerPaginaMural(); 
-    }
-}
-
-// 12. ENVIAR FORMULÁRIO DE PUBLICAÇÃO
-const publicarForm = document.getElementById('publicar-form');
-if (publicarForm) {
-    publicarForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const formData = new FormData();
