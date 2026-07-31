@@ -1,28 +1,36 @@
+// VARIÁVEIS GLOBAIS DE CONTROLE
 let totalAvisosConhecidos = null;
-let bancoAvisosLocal = []; // Guarda os avisos para busca local rápida
+let bancoAvisosLocal = [];
 
-// Ocultar ou exibir campo de chave mestra no cadastro institucional
+// 1. OCULTAR OU EXIBIR CAMPO DE CHAVE MESTRA NO CADASTRO
 function toggleChaveAcesso() {
-    const cargo = document.getElementById('cad-cargo').value;
+    const cargoInput = document.getElementById('cad-cargo');
     const divChave = document.getElementById('div-chave');
+    const cadChave = document.getElementById('cad-chave');
+
+    if (!cargoInput || !divChave || !cadChave) return;
+
+    const cargo = cargoInput.value;
+
     if (cargo === 'aluno' || cargo === 'responsavel') {
         divChave.classList.add('hidden');
-        document.getElementById('cad-chave').removeAttribute('required');
+        cadChave.removeAttribute('required');
     } else {
         divChave.classList.remove('hidden');
-        document.getElementById('cad-chave').setAttribute('required', 'true');
+        cadChave.setAttribute('required', 'true');
     }
 }
 
-// Monitor de digitação da Barra de Pesquisa
-if (document.getElementById('campo-pesquisa')) {
-    document.getElementById('campo-pesquisa').addEventListener('input', (e) => {
+// 2. MONITOR DE DIGITAÇÃO DA BARRA DE PESQUISA
+const campoPesquisa = document.getElementById('campo-pesquisa');
+if (campoPesquisa) {
+    campoPesquisa.addEventListener('input', (e) => {
         const termo = e.target.value.toLowerCase();
         filtrarEMostrarAvisos(termo);
     });
 }
 
-// Gerador Automático de QR Code baseado na URL atual do navegador
+// 3. GERADOR AUTOMÁTICO DE QR CODE BASEADO NA URL DO NAVEGADOR
 function gerarQrCodeAutomatico() {
     const containerQr = document.getElementById('canvas-qrcode');
     if (!containerQr) return;
@@ -31,9 +39,10 @@ function gerarQrCodeAutomatico() {
     containerQr.innerHTML = `<img src="https://qrserver.com{encodeURIComponent(urlAtual)}&color=0f172a" alt="QR Code do Site" style="display:block;">`;
 }
 
-// Envio do formulário de cadastro
-if (document.getElementById('cadastro-form')) {
-    document.getElementById('cadastro-form').addEventListener('submit', async (e) => {
+// 4. ENVIO DO FORMULÁRIO DE CADASTRO
+const cadastroForm = document.getElementById('cadastro-form');
+if (cadastroForm) {
+    cadastroForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const dados = {
             nome: document.getElementById('cad-nome').value,
@@ -57,9 +66,10 @@ if (document.getElementById('cadastro-form')) {
     });
 }
 
-// Envio do formulário de login
-if (document.getElementById('login-form')) {
-    document.getElementById('login-form').addEventListener('submit', async (e) => {
+// 5. ENVIO DO FORMULÁRIO DE LOGIN
+const loginForm = document.getElementById('login-form');
+if (loginForm) {
+    loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const email = document.getElementById('login-email').value;
         const senha = document.getElementById('login-senha').value;
@@ -77,7 +87,7 @@ if (document.getElementById('login-form')) {
     });
 }
 
-// Proteção da página do mural
+// 6. PROTEÇÃO DA PÁGINA DO MURAL
 async function protegerPaginaMural() {
     try {
         const res = await fetch('/api/usuario-atual', { cache: 'no-store' });
@@ -109,7 +119,7 @@ async function protegerPaginaMural() {
     }
 }
 
-// Baixar avisos iniciais
+// 7. BAIXAR AVISOS INICIAIS DO SERVIDOR
 async function baixarAvisosDoServidor(cargoUsuario) {
     const res = await fetch('/api/avisos', { cache: 'no-store' });
     bancoAvisosLocal = await res.json();
@@ -121,7 +131,7 @@ async function baixarAvisosDoServidor(cargoUsuario) {
     filtrarEMostrarAvisos("", cargoUsuario);
 }
 
-// Desenha e filtra os blocos na tela
+// 8. DESENHAR E FILTRAR OS BLOCOS DE AVISO NA TELA
 function filtrarEMostrarAvisos(termoPesquisa = "", cargoUsuario = null) {
     const container = document.getElementById('lista-avisos');
     if (!container) return;
@@ -130,7 +140,13 @@ function filtrarEMostrarAvisos(termoPesquisa = "", cargoUsuario = null) {
     if (!cargoUsuario) {
         const userDisplay = document.getElementById('user-display');
         const textoCabecalho = userDisplay ? userDisplay.innerText : "";
-        cargoUsuario = textoCabecalho.includes('aluno') ? 'aluno' : (textoCabecalho.includes('responsavel') ? 'responsavel' : 'professor');
+        if (textoCabecalho.includes('aluno')) {
+            cargoUsuario = 'aluno';
+        } else if (textoCabecalho.includes('responsavel')) {
+            cargoUsuario = 'responsavel';
+        } else {
+            cargoUsuario = 'professor';
+        }
     }
 
     const avisosFiltrados = bancoAvisosLocal.filter(aviso => {
@@ -168,25 +184,25 @@ function filtrarEMostrarAvisos(termoPesquisa = "", cargoUsuario = null) {
                 <p style="font-size: 16px; line-height: 1.6; color: #cbd5e1; margin-top: 15px; margin-bottom: 5px; white-space: pre-line;">${aviso.conteudo}</p>
                 ${botaoApagar}
             </div>
-            ${aviso.imagem ? `<img src="${aviso.imagem}" class="aviso-img">` : ''}
+            ${aviso.imagem ? `<img src="${aviso.imagem}" class="aviso-img" alt="Referência">` : ''}
         `;
         container.appendChild(item);
     });
 }
 
-// Checagem em segundo plano
+// 9. CHECAGEM SILENCIOSA EM SEGUNDO PLANO (NOTIFICAÇÕES)
 async function checarNovosAvisosSilenciosamente(cargoUsuario) {
     try {
         const res = await fetch('/api/avisos', { cache: 'no-store' });
         const avisos = await res.json();
 
         if (totalAvisosConhecidos !== null && avisos.length > totalAvisosConhecidos) {
-            const maisRecente = avisos[0]; // Pega o mais recente
+            const maisRecente = avisos[0]; 
             totalAvisosConhecidos = avisos.length;
             
             bancoAvisosLocal = avisos;
-            const campoPesquisa = document.getElementById('campo-pesquisa');
-            const termoAtual = campoPesquisa ? campoPesquisa.value.toLowerCase() : "";
+            const campoP = document.getElementById('campo-pesquisa');
+            const termoAtual = campoP ? campoP.value.toLowerCase() : "";
             filtrarEMostrarAvisos(termoAtual, cargoUsuario);
 
             if (Notification.permission === "granted" && maisRecente) {
@@ -203,7 +219,7 @@ async function checarNovosAvisosSilenciosamente(cargoUsuario) {
     }
 }
 
-// Verificar permissão de notificação
+// 10. GERENCIAR PERMISSÕES DE NOTIFICAÇÃO
 function verificarPermissaoNotificacao() {
     const barra = document.getElementById('barra-notificacao');
     if (!barra) return;
@@ -216,7 +232,6 @@ function verificarPermissaoNotificacao() {
     }
 }
 
-// Solicitar permissão de notificação
 function solicitarPermissaoNotificacao() {
     if ("Notification" in window) {
         Notification.requestPermission().then(permission => {
@@ -230,7 +245,7 @@ function solicitarPermissaoNotificacao() {
     }
 }
 
-// Deletar aviso
+// 11. DELETAR UM AVISO SELECIONADO
 async function deletarAviso(id) {
     if (!confirm("Tem certeza que quer apagar esse aviso?")) return;
     const res = await fetch(`/api/avisos/${id}`, { method: 'DELETE' });
@@ -239,10 +254,9 @@ async function deletarAviso(id) {
     }
 }
 
-// Formulário de publicação
-if (document.getElementById('publicar-form')) {
-    document.getElementById('publicar-form').addEventListener('submit', async (e) => {
+// 12. ENVIAR FORMULÁRIO DE PUBLICAÇÃO
+const publicarForm = document.getElementById('publicar-form');
+if (publicarForm) {
+    publicarForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const formData = new FormData();
-        formData.append('titulo', document.getElementById('pub-titulo').value);
-        formData.append('conteudo', document.getElementById('pub-conteudo').value);
