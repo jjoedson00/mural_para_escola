@@ -30,28 +30,7 @@ if (campoPesquisa) {
     });
 }
 
-// 3. GERADOR AUTOMÁTICO DE QR CODE REVISADO SEM ERROS
-function gerarQrCodeAutomatico() {
-    const containerQr = document.getElementById('canvas-qrcode');
-    if (!containerQr) return;
-    
-    // Captura o link real do Render direto do navegador
-    const urlAtual = window.location.origin; 
-    
-    // Limpa a bolinha branca antiga e remove estilos conflitantes
-    containerQr.innerHTML = "";
-    containerQr.style.background = "transparent";
-    containerQr.style.padding = "0";
-    containerQr.style.boxShadow = "none";
-    
-    // Gera o bloco usando o novo motor seguro conectado ao HTML
-    if (window.LocalQRCode && typeof window.LocalQRCode.generate === 'function') {
-        var qrcodeElement = window.LocalQRCode.generate(urlAtual);
-        containerQr.appendChild(qrcodeElement);
-    }
-}
-
-// 4. ENVIO DO FORMULÁRIO DE CADASTRO
+// 3. ENVIO DO FORMULÁRIO DE CADASTRO
 const cadastroForm = document.getElementById('cadastro-form');
 if (cadastroForm) {
     cadastroForm.addEventListener('submit', async (e) => {
@@ -78,7 +57,7 @@ if (cadastroForm) {
     });
 }
 
-// 5. ENVIO DO FORMULÁRIO DE LOGIN
+// 4. ENVIO DO FORMULÁRIO DE LOGIN
 const loginForm = document.getElementById('login-form');
 if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
@@ -99,7 +78,7 @@ if (loginForm) {
     });
 }
 
-// 6. PROTEÇÃO DA PÁGINA DO MURAL
+// 5. PROTEÇÃO DA PÁGINA DO MURAL
 async function protegerPaginaMural() {
     try {
         const res = await fetch('/api/usuario-atual', { cache: 'no-store' });
@@ -131,7 +110,7 @@ async function protegerPaginaMural() {
     }
 }
 
-// 7. BAIXAR AVISOS INICIAIS DO SERVIDOR
+// 6. BAIXAR AVISOS INICIAIS DO SERVIDOR
 async function baixarAvisosDoServidor(cargoUsuario) {
     const res = await fetch('/api/avisos', { cache: 'no-store' });
     bancoAvisosLocal = await res.json();
@@ -143,7 +122,7 @@ async function baixarAvisosDoServidor(cargoUsuario) {
     filtrarEMostrarAvisos("", cargoUsuario);
 }
 
-// 8. DESENHAR E FILTRAR OS BLOCOS DE AVISO NA TELA
+// 7. DESENHAR E FILTRAR OS BLOCOS DE AVISO NA TELA
 function filtrarEMostrarAvisos(termoPesquisa = "", cargoUsuario = null) {
     const container = document.getElementById('lista-avisos');
     if (!container) return;
@@ -202,14 +181,14 @@ function filtrarEMostrarAvisos(termoPesquisa = "", cargoUsuario = null) {
     });
 }
 
-// 9. CHECAGEM SILENCIOSA EM SEGUNDO PLANO (NOTIFICAÇÕES)
+// 8. CHECAGEM SILENCIOSA EM SEGUNDO PLANO (NOTIFICAÇÕES)
 async function checarNovosAvisosSilenciosamente(cargoUsuario) {
     try {
         const res = await fetch('/api/avisos', { cache: 'no-store' });
         const avisos = await res.json();
 
         if (totalAvisosConhecidos !== null && avisos.length > totalAvisosConhecidos) {
-            const maisRecente = avisos[0]; 
+            const maisRecente = avisos[0]; // Pega o aviso mais recente do topo da lista
             totalAvisosConhecidos = avisos.length;
             
             bancoAvisosLocal = avisos;
@@ -231,7 +210,7 @@ async function checarNovosAvisosSilenciosamente(cargoUsuario) {
     }
 }
 
-// 10. GERENCIAR PERMISSÕES DE NOTIFICAÇÃO
+// 9. GERENCIAR PERMISSÕES DE NOTIFICAÇÃO
 function verificarPermissaoNotificacao() {
     const barra = document.getElementById('barra-notificacao');
     if (!barra) return;
@@ -257,7 +236,24 @@ function solicitarPermissaoNotificacao() {
     }
 }
 
-// 11. DELETAR UM AVISO SELECIONADO
+// 10. DELETAR UM AVISO SELECIONADO
 async function deletarAviso(id) {
     if (!confirm("Tem certeza que quer apagar esse aviso?")) return;
     const res = await fetch(`/api/avisos/${id}`, { method: 'DELETE' });
+    if (res.ok) { 
+        protegerPaginaMural(); 
+    }
+}
+
+// 11. ENVIAR FORMULÁRIO DE PUBLICAÇÃO
+const publicarForm = document.getElementById('publicar-form');
+if (publicarForm) {
+    publicarForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData();
+        formData.append('titulo', document.getElementById('pub-titulo').value);
+        formData.append('conteudo', document.getElementById('pub-conteudo').value);
+        formData.append('visibilidade', document.getElementById('pub-visibilidade').value);
+        
+        const fotoInput = document.getElementById('pub-imagem');
+        if (fotoInput && fotoInput.files && fotoInput.files[0]) {
