@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Nova Publicação - Mural Escolar</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h2>✍️ Criar Novo Aviso Oficial</h2>
+            <form id="publicar-form">
+                <input type="text" id="pub-titulo" placeholder="Título do Aviso" required>
+                <textarea id="pub-conteudo" rows="5" placeholder="Digite as informações detalhadas aqui..." required></textarea>
+                
+                <!-- Novo Campo: Quem pode ler este aviso -->
+                <label>Destinatários do Aviso:</label>
+                <select id="pub-visibilidade" required>
+                    <option value="geral">📢 Público Geral (Todos podem ver)</option>
+                    <option value="interno">🔒 Apenas Interno (Professores, Coordenação e Direção)</option>
+                </select>
+
+                <label>Imagem de Referência (Opcional):</label>
+                <input type="file" id="pub-imagem" accept="image/*">
+
+                <button type="submit">Publicar no Mural</button>
+                <button type="button" class="btn-danger" onclick="window.location.href='mural.html'">Cancelar</button>
+            </form>
+        </div>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

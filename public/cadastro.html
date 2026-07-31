@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastro - Mural Escolar</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h2>📝 Criar Nova Conta</h2>
+            <form id="cadastro-form">
+                <input type="text" id="cad-nome" placeholder="Nome Completo" required>
+                <input type="email" id="cad-email" placeholder="E-mail" required>
+                <input type="password" id="cad-senha" placeholder="Crie uma Senha" required>
+                
+                <label>Seu Cargo/Função:</label>
+                <select id="cad-cargo" onchange="toggleChaveAcesso()" required>
+                    <option value="aluno">Aluno</option>
+                    <option value="responsavel">Responsável / Pai / Mãe</option>
+                    <option value="professor">Professor(a)</option>
+                    <option value="coordenador">Coordenador(a)</option>
+                    <option value="direcao">Direção</option>
+                </select>
+
+                <!-- Div que some/aparece dependendo do cargo selecionado -->
+                <div id="div-chave" class="hidden">
+                    <label style="color: var(--danger);">🔑 Chave de Segurança da Equipe:</label>
+                    <input type="password" id="cad-chave" placeholder="Digite a chave da escola">
+                </div>
+
+                <button type="submit">Concluir Cadastro</button>
+                <p><a href="index.html">Voltar para o Login</a></p>
+            </form>
+        </div>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mural de Avisos Oficiais</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Barra de permissão de notificação -->
+        <div id="barra-notificacao" class="card hidden" style="padding: 15px 25px; margin-bottom: 15px; border-left: 6px solid var(--warning); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <span style="font-weight: 600; color: #334155;">🔔 Ative as notificações para receber os novos avisos da escola em tempo real!</span>
+            <button onclick="solicitarPermissaoNotificacao()" style="width: auto; padding: 8px 16px; font-size: 14px;">Ativar Notificações</button>
+        </div>
+
+        <div id="mural-section" class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px;">
+                <h2 style="margin: 0; font-size: 32px;">📢 Mural de Avisos Oficiais</h2>
+                <div style="display: flex; gap: 12px;">
+                    <button id="btn-ir-publicar" class="hidden" onclick="window.location.href='publicar.html'">+ Publicar Aviso</button>
+                    <button onclick="logout()" class="btn-danger" style="margin: 0;">Sair</button>
+                </div>
+            </div>
+            <p style="font-size: 16px; color: #475569; margin-bottom: 30px;">Olá, <b id="user-display" style="color: var(--primary);">Carregando usuário...</b>!</p>
+            
+            <div id="lista-avisos"></div>
+        </div>
+    </div>
+    <script src="main.js"></script>
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            protegerPaginaMural();
+            verificarPermissaoNotificacao();
+        });
+    </script>
+</body>
+</html>
