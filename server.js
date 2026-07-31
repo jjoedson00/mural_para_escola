@@ -26,33 +26,28 @@ app.use(session({
     }
 }));
 
-// Servir arquivos estáticos (CSS, imagens e JS de suporte)
-app.use(express.static('public'));
+// SOLUÇÃO DEFINITIVA: Força o Express a aceitar links sem .html de forma nativa
+app.use(express.static('public', {
+    extensions: ['html', 'htm']
+}));
 app.use('/uploads', express.static('uploads'));
 
-// -------------------------------------------------------------
-// SISTEMA DE ROTAS AMIGÁVEIS (SEM EXTENSÃO .HTML)
-// -------------------------------------------------------------
+// ROTAS AMIGÁVEIS AUXILIARES
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
-
 app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
-
 app.get('/cadastro', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'cadastro.html'));
 });
-
 app.get('/mural', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'mural.html'));
 });
-
 app.get('/publicar', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'publicar.html'));
 });
-// -------------------------------------------------------------
 
 const storage = multer.diskStorage({
     destination: './uploads/',
