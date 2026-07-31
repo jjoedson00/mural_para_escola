@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Login - Mural Escolar</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/style.css">
 </head>
 <body>
     <div class="container" style="max-width: 500px;">
@@ -15,19 +15,10 @@
                 <button type="submit">Entrar</button>
                 <p style="text-align: center;"><a href="/cadastro">Não tem conta? Cadastre-se aqui</a></p>
             </form>
-            
-            <!-- ESPAÇO DO QR CODE PARA A BANCA -->
-            <div id="bloco-qrcode" style="text-align: center; margin-top: 30px; padding-top: 25px; border-top: 1px solid rgba(255,255,255,0.1);">
-                <p style="font-size: 13px; color: #94a3b8; margin-bottom: 15px; font-weight: 600;">📱 ESCANEIE PARA TESTAR NO CELULAR</p>
-                <div id="canvas-qrcode" style="display: inline-block; padding: 12px; background: white; border-radius: 12px; box-shadow: 0 10px 15px rgba(0,0,0,0.5);"></div>
-            </div>
         </div>
     </div>
     
-    <!-- CORREÇÃO: Barra '/' adicionada antes do nome do arquivo script -->
-    <script src="/main.js"></script>
-    <script>
-        window.addEventListener('DOMContentLoaded', gerarQrCodeAutomatico);
-    </script>
+    <!-- O ?v=999 obriga o navegador a deletar a bolinha branca e destravar os botões na hora -->
+    <script src="/main.js?v=999"></script>
 </body>
 </html>
