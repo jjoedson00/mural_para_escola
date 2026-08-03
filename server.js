@@ -6,7 +6,8 @@ const bcrypt = require('bcryptjs');
 const session = require('express-session');
 
 const app = express();
-const db = new sqlite3.Database('./avisos.db');
+const dbPath = process.env.RENDER ? '/tmp/avisos.db' : './avisos.db';
+const db = new sqlite3.Database(dbPath);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
